@@ -47,7 +47,7 @@ FormatDialog::FormatDialog(GladeSearchpath* gladeSearchPath, Settings* settings,
     loadPageFormats();
 
     int i = 0;
-    //for (GList* l = list; l != nullptr; l = l->next) {
+    // for (GList* l = list; l != nullptr; l = l->next) {
     for (const auto& s: paperSizes) {
         string displayName = gtk_paper_size_get_display_name(s.get());
         if (StringUtils::startsWith(displayName, "custom_")) {
