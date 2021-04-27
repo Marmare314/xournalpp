@@ -24,39 +24,20 @@
 #include "i18n.h"
 
 SaveHandler::SaveHandler() {
-    this->root = nullptr;
     this->firstPdfPageVisited = false;
     this->attachBgId = 1;
-    this->backgroundImages = nullptr;
-}
-
-SaveHandler::~SaveHandler() {
-    delete this->root;
-
-    for (GList* l = this->backgroundImages; l != nullptr; l = l->next) {
-        delete static_cast<BackgroundImage*>(l->data);
-    }
-    g_list_free(this->backgroundImages);
-    this->backgroundImages = nullptr;
 }
 
 void SaveHandler::prepareSave(Document* doc) {
     if (this->root) {
         // cleanup old data
-        delete this->root;
-        this->root = nullptr;
-
-        for (GList* l = this->backgroundImages; l != nullptr; l = l->next) {
-            delete static_cast<BackgroundImage*>(l->data);
-        }
-        g_list_free(this->backgroundImages);
-        this->backgroundImages = nullptr;
+        backgroundImages.clear();
     }
 
     this->firstPdfPageVisited = false;
     this->attachBgId = 1;
 
-    this->root = new XmlNode("xournal");
+    root.reset(new XmlNode("xournal"));
 
     writeHeader();
 
@@ -74,7 +55,7 @@ void SaveHandler::prepareSave(Document* doc) {
 
     for (size_t i = 0; i < doc->getPageCount(); i++) {
         PageRef p = doc->getPage(i);
-        visitPage(this->root, p, doc, i);
+        visitPage(root.get(), p, doc, static_cast<int>(i));
     }
 }
 
@@ -265,9 +246,7 @@ void SaveHandler::visitPage(XmlNode* root, PageRef p, Document* doc, int id) {
             background->setAttrib("filename", filename);
             p->getBackgroundImage().setFilepath(filename);
 
-            auto* img = new BackgroundImage();
-            *img = p->getBackgroundImage();
-            this->backgroundImages = g_list_append(this->backgroundImages, img);
+            backgroundImages.emplace_back(p->getBackgroundImage());
 
             g_free(filename);
             p->getBackgroundImage().setCloneId(id);
@@ -333,11 +312,9 @@ void SaveHandler::saveTo(OutputStream* out, const fs::path& filepath, ProgressLi
     out->write("<?xml version=\"1.0\" standalone=\"no\"?>\n");
     root->writeOut(out, listener);
 
-    for (GList* l = this->backgroundImages; l != nullptr; l = l->next) {
-        auto* img = static_cast<BackgroundImage*>(l->data);
-
-        auto tmpfn = (fs::path(filepath) += ".") += img->getFilepath();
-        if (!gdk_pixbuf_save(img->getPixbuf(), tmpfn.u8string().c_str(), "png", nullptr, nullptr)) {
+    for (BackgroundImage& img: backgroundImages) {
+        auto tmpfn = (fs::path(filepath) += ".") += img.getFilepath();
+        if (!gdk_pixbuf_save(img.getPixbuf(), tmpfn.u8string().c_str(), "png", nullptr, nullptr)) {
             if (!this->errorMessage.empty()) {
                 this->errorMessage += "\n";
             }
