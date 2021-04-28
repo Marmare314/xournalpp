@@ -18,8 +18,8 @@ void PartList::add(EraseableStrokePart* part) { this->data = g_list_append(this-
 auto PartList::clone() -> PartList* {
     auto* list = new PartList();
     for (GList* l = this->data; l != nullptr; l = l->next) {
-        auto* p = static_cast<EraseableStrokePart*>(l->data);
-        list->data = g_list_append(list->data, p->clone());
+        const auto* p = static_cast<EraseableStrokePart*>(l->data);
+        list->data = g_list_append(list->data, new EraseableStrokePart(*p));
     }
 
     return list;
