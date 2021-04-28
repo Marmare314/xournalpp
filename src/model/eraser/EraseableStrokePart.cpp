@@ -63,7 +63,7 @@ auto EraseableStrokePart::getWidth() const -> double { return this->width; }
 auto EraseableStrokePart::getPoints() -> std::vector<Point>& { return points; }
 
 void EraseableStrokePart::clearSplitData() {
-    points.erase(points.begin() + 1, points.end() - 1); // deletes everything but endpoints
+    points.erase(points.begin() + 1, points.end() - 1);  // deletes everything but endpoints
 }
 
 void EraseableStrokePart::splitFor(double halfEraserSize) {

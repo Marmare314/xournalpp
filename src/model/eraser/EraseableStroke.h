@@ -15,17 +15,16 @@
 
 #include <gtk/gtk.h>
 
-#include "model/Point.h"
+#include "EraseableStrokePart.h"
 
-class EraseableStrokePart;
-class PartList;
+using PartList = std::vector<EraseableStrokePart>;
+
 class Range;
 class Stroke;
 
 class EraseableStroke {
 public:
     EraseableStroke(Stroke* stroke);
-    virtual ~EraseableStroke();
 
 public:
     /**
@@ -38,15 +37,15 @@ public:
     void draw(cairo_t* cr);
 
 private:
-    void erase(double x, double y, double halfEraserSize, EraseableStrokePart* part, PartList* list);
-    static bool erasePart(double x, double y, double halfEraserSize, EraseableStrokePart* part, PartList* list,
+    bool erase(double x, double y, double halfEraserSize, PartList::iterator& part, PartList& list);
+    static bool erasePart(double x, double y, double halfEraserSize, PartList::iterator& part, PartList& list,
                           bool* deleteStrokeAfter);
 
     void addRepaintRect(double x, double y, double width, double height);
 
 private:
     GMutex partLock{};
-    PartList* parts = nullptr;
+    PartList parts{};
 
     Range* repaintRect = nullptr;
 
