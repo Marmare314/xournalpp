@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include <gtk/gtk.h>
@@ -32,7 +33,7 @@ public:
      */
     Range* erase(double x, double y, double halfEraserSize, Range* range = nullptr);
 
-    GList* getStroke(Stroke* original);
+    std::vector<std::unique_ptr<Stroke>> getStroke(Stroke* original);
 
     void draw(cairo_t* cr);
 

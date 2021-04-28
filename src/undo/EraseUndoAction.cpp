@@ -31,9 +31,10 @@ void EraseUndoAction::finalize() {
             int pos = static_cast<int>(entryIter->layer->removeElement(entryIter->element, false));
 
             EraseableStroke* e = entryIter->element->getEraseable();
-            GList* stroke = e->getStroke(entryIter->element);
-            for (GList* ls = stroke; ls != nullptr; ls = ls->next) {
-                auto* copy = static_cast<Stroke*>(ls->data);
+            std::vector<std::unique_ptr<Stroke>> strokeList = e->getStroke(entryIter->element);
+            for (auto& stroke: strokeList) {
+                // TODO (Marmare314): should use unique_ptr in layer
+                Stroke* copy = stroke.release();
                 entryIter->layer->insertElement(copy, pos);
                 this->addEdited(entryIter->layer, copy, pos);
                 pos++;

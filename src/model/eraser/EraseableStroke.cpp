@@ -270,10 +270,9 @@ auto EraseableStroke::erasePart(double x, double y, double halfEraserSize, PartL
     return changed;
 }
 
-auto EraseableStroke::getStroke(Stroke* original) -> GList* {
-    GList* list = nullptr;
+auto EraseableStroke::getStroke(Stroke* original) -> std::vector<std::unique_ptr<Stroke>> {
+    std::vector<std::unique_ptr<Stroke>> strokeList;
 
-    Stroke* s = nullptr;
     Point lastPoint(NAN, NAN);
     for (EraseableStrokePart& part: parts) {
         std::vector<Point>& points = part.getPoints();
@@ -285,23 +284,22 @@ auto EraseableStroke::getStroke(Stroke* original) -> GList* {
         Point b = points.back();
         a.z = part.getWidth();
 
-        if (!lastPoint.equalsPos(a) || s == nullptr) {
-            if (s) {
-                s->addPoint(lastPoint);
+        if (!lastPoint.equalsPos(a) || strokeList.empty()) {
+            if (!strokeList.empty()) {
+                strokeList.back()->addPoint(lastPoint);
             }
-            s = new Stroke();
-            s->setColor(original->getColor());
-            s->setToolType(original->getToolType());
-            s->setLineStyle(original->getLineStyle());
-            s->setWidth(original->getWidth());
-            list = g_list_append(list, s);
+            auto& newStroke = strokeList.emplace_back(std::move(std::make_unique<Stroke>()));
+            newStroke->setColor(original->getColor());
+            newStroke->setToolType(original->getToolType());
+            newStroke->setLineStyle(original->getLineStyle());
+            newStroke->setWidth(original->getWidth());
         }
-        s->addPoint(a);
+        strokeList.back()->addPoint(a);
         lastPoint = b;
     }
-    if (s) {
-        s->addPoint(lastPoint);
+    if (!strokeList.empty()) {
+        strokeList.back()->addPoint(lastPoint);
     }
 
-    return list;
+    return strokeList;
 }
