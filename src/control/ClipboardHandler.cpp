@@ -138,21 +138,20 @@ auto ClipboardHandler::copy() -> bool {
     // prepare text contents
     /////////////////////////////////////////////////////////////////
 
-    std::multiset<Element*, decltype(&ElementCompareFunc)> textElements(ElementCompareFunc);
+    std::multiset<Text*, decltype(&ElementCompareFunc)> textElements(ElementCompareFunc);
 
     for (Element* e: *this->selection->getElements()) {
         if (e->getType() == ELEMENT_TEXT) {
-            textElements.insert(e);
+            textElements.insert(dynamic_cast<Text*>(e));
         }
     }
 
     string text{};
-    for (Element* l: textElements) {
-        Text* e = dynamic_cast<Text*>(l);
+    for (Text* t: textElements) {
         if (!text.empty()) {
             text += "\n";
         }
-        text += e->getText();
+        text += t->getText();
     }
 
     /////////////////////////////////////////////////////////////////

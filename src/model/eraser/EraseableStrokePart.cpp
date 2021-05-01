@@ -61,6 +61,7 @@ void EraseableStrokePart::addPoint(Point p) {
 auto EraseableStrokePart::getWidth() const -> double { return this->width; }
 
 auto EraseableStrokePart::getPoints() -> std::vector<Point>& { return points; }
+auto EraseableStrokePart::getPoints() const -> std::vector<Point> const& { return points; }
 
 void EraseableStrokePart::clearSplitData() {
     points.erase(points.begin() + 1, points.end() - 1);  // deletes everything but endpoints

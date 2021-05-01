@@ -59,7 +59,7 @@ auto AddUndoAction::getText() -> string {
         if (!elements.empty()) {
             ElementType type = elements.begin()->element->getType();
 
-            for (auto elemIter = ++elements.begin(); elemIter != elements.end(); elemIter++) {
+            for (auto elemIter = ++elements.begin(); elemIter != elements.end(); ++elemIter) {
                 if (type != elemIter->element->getType()) {
                     text += " ";
                     text += _("elements");

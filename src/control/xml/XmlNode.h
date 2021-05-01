@@ -25,9 +25,6 @@ class XmlNode {
 public:
     XmlNode(const char* tag);
 
-    XmlNode(const XmlNode& node) = delete;
-    void operator=(const XmlNode& node) = delete;
-
 public:
     void setAttrib(const char* attrib, string value);
     void setAttrib(const char* attrib, const char* value);

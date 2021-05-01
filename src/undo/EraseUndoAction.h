@@ -36,8 +36,6 @@ public:
     string getText() override;
 
 private:
-    std::multiset<PageLayerPosEntry<Stroke>, decltype(&PageLayerPosEntry<Stroke>::cmp)> edited{
-            PageLayerPosEntry<Stroke>::cmp};
-    std::multiset<PageLayerPosEntry<Stroke>, decltype(&PageLayerPosEntry<Stroke>::cmp)> original{
-            PageLayerPosEntry<Stroke>::cmp};
+    std::multiset<PageLayerPosEntry<Stroke>> edited{};
+    std::multiset<PageLayerPosEntry<Stroke>> original{};
 };

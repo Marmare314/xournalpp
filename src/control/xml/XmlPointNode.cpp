@@ -4,7 +4,7 @@
 
 XmlPointNode::XmlPointNode(const char* tag): XmlAudioNode(tag) {}
 
-void XmlPointNode::addPoint(const Point* point) { points.emplace_back(*point); }
+void XmlPointNode::addPoint(Point point) { points.emplace_back(std::move(point)); }
 
 void XmlPointNode::writeOut(OutputStream* out) {
     /** Write stroke and its attributes */
@@ -14,10 +14,11 @@ void XmlPointNode::writeOut(OutputStream* out) {
 
     out->write(">");
 
-    for (auto pointIter = points.begin(); pointIter != points.end(); pointIter++) {
-        if (pointIter != points.begin()) {
-            out->write(" ");
-        }
+    auto pointIter = points.begin();
+    Util::writeCoordinateString(out, pointIter->x, pointIter->y);
+    ++pointIter;
+    for (; pointIter != points.end(); ++pointIter) {
+        out->write(" ");
 
         Util::writeCoordinateString(out, pointIter->x, pointIter->y);
     }

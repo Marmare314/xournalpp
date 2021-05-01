@@ -32,7 +32,6 @@ public:
     string getText() override;
 
 private:
-    std::multiset<PageLayerPosEntry<Element>, decltype(&PageLayerPosEntry<Element>::cmp)> elements{
-            PageLayerPosEntry<Element>::cmp};
+    std::multiset<PageLayerPosEntry<Element>> elements{};
     bool eraser = true;
 };

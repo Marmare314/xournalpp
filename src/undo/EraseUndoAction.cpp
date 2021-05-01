@@ -13,7 +13,7 @@ void EraseUndoAction::addOriginal(Layer* layer, Stroke* element, int pos) { orig
 void EraseUndoAction::addEdited(Layer* layer, Stroke* element, int pos) { edited.emplace(layer, element, pos); }
 
 void EraseUndoAction::removeEdited(Stroke* element) {
-    for (auto entryIter = edited.begin(); entryIter != edited.end(); entryIter++) {
+    for (auto entryIter = edited.begin(); entryIter != edited.end(); ++entryIter) {
         if (entryIter->element == element) {
             edited.erase(entryIter);
             return;
@@ -22,27 +22,27 @@ void EraseUndoAction::removeEdited(Stroke* element) {
 }
 
 void EraseUndoAction::finalize() {
-    for (auto entryIter = original.begin(); entryIter != original.end(); entryIter++) {
-        if (entryIter->element->getPointCount() == 0) {
+    for (auto const& entry: original) {
+        if (entry.element->getPointCount() == 0) {
             // TODO (Marmare314): is this really expected behaviour?
             continue;
         } else {
             // Remove the original and add the copy
-            int pos = static_cast<int>(entryIter->layer->removeElement(entryIter->element, false));
+            int pos = static_cast<int>(entry.layer->removeElement(entry.element, false));
 
-            EraseableStroke* e = entryIter->element->getEraseable();
-            std::vector<std::unique_ptr<Stroke>> strokeList = e->getStroke(entryIter->element);
+            EraseableStroke* e = entry.element->getEraseable();
+            std::vector<std::unique_ptr<Stroke>> strokeList = e->getStroke(entry.element);
             for (auto& stroke: strokeList) {
                 // TODO (Marmare314): should use unique_ptr in layer
                 Stroke* copy = stroke.release();
-                entryIter->layer->insertElement(copy, pos);
-                this->addEdited(entryIter->layer, copy, pos);
+                entry.layer->insertElement(copy, pos);
+                this->addEdited(entry.layer, copy, pos);
                 pos++;
             }
 
             delete e;
             e = nullptr;
-            entryIter->element->setEraseable(nullptr);
+            entry.element->setEraseable(nullptr);
         }
     }
 

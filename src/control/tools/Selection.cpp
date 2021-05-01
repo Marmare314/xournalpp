@@ -141,7 +141,7 @@ void RegionSelect::paint(cairo_t* cr, GdkRectangle* rect, double zoom) {
         const RegionPoint& r0 = points.front();
         cairo_move_to(cr, r0.x, r0.y);
 
-        for (auto pointIterator = points.begin() + 1; pointIterator != points.end(); pointIterator++) {
+        for (auto pointIterator = points.begin() + 1; pointIterator != points.end(); ++pointIterator) {
             cairo_line_to(cr, pointIterator->x, pointIterator->y);
         }
 
@@ -166,18 +166,10 @@ void RegionSelect::currentPos(double x, double y) {
         double by = r0.y;
 
         for (const RegionPoint& p: points) {
-            if (ax > p.x) {
-                ax = p.x;
-            }
-            if (bx < p.x) {
-                bx = p.x;
-            }
-            if (ay > p.y) {
-                ay = p.y;
-            }
-            if (by < p.y) {
-                by = p.y;
-            }
+            ax = std::min(ax, p.x);
+            bx = std::max(bx, p.x);
+            ay = std::min(ay, p.y);
+            by = std::max(by, p.y);
         }
 
         view->repaintArea(ax, ay, bx, by);
@@ -205,7 +197,7 @@ auto RegionSelect::contains(double x, double y) -> bool {
 
     // Walk the edges of the polygon
     for (auto pointIterator = points.begin(); pointIterator != points.end();
-         lastx = curx, lasty = cury, pointIterator++) {
+         lastx = curx, lasty = cury, ++pointIterator) {
         curx = pointIterator->x;
         cury = pointIterator->y;
 
@@ -260,23 +252,16 @@ auto RegionSelect::contains(double x, double y) -> bool {
 auto RegionSelect::finalize(PageRef page) -> bool {
     this->page = page;
 
-    this->x1Box = 0;
+    this->x1Box = DBL_MAX;
     this->x2Box = 0;
-    this->y1Box = 0;
+    this->y1Box = DBL_MAX;
     this->y2Box = 0;
 
     for (const RegionPoint& p: points) {
-        if (p.x < this->x1Box) {
-            this->x1Box = p.x;
-        } else if (p.x > this->x2Box) {
-            this->x2Box = p.x;
-        }
-
-        if (p.y < this->y1Box) {
-            this->y1Box = p.y;
-        } else if (p.y > this->y2Box) {
-            this->y2Box = p.y;
-        }
+        this->x1Box = std::min(this->x1Box, p.x);
+        this->x2Box = std::max(this->x2Box, p.x);
+        this->y1Box = std::min(this->y1Box, p.y);
+        this->y2Box = std::max(this->y2Box, p.y);
     }
 
     Layer* l = page->getSelectedLayer();
@@ -295,7 +280,7 @@ auto RegionSelect::userTapped(double zoom) -> bool {
     double maxDist = 10 / zoom;
     const RegionPoint& r0 = points.front();
     for (const RegionPoint& p: points) {
-        if (r0.x - p.x > maxDist || p.x - r0.x > maxDist || r0.y - p.y > maxDist || p.y - r0.y > maxDist) {
+        if (std::abs(r0.x - p.x) > maxDist || std::abs(r0.y - p.y) > maxDist) {
             return false;
         }
     }

@@ -100,10 +100,7 @@ void SaveHandler::visitStroke(XmlPointNode* stroke, Stroke* s) {
 
     int pointCount = s->getPointCount();
 
-    for (int i = 0; i < pointCount; i++) {
-        Point p = s->getPoint(i);
-        stroke->addPoint(&p);
-    }
+    for (int i = 0; i < pointCount; i++) { stroke->addPoint(s->getPoint(i)); }
 
     if (s->hasPressure()) {
         auto* values = new double[pointCount + 1];
@@ -308,7 +305,7 @@ void SaveHandler::saveTo(OutputStream* out, const fs::path& filepath, ProgressLi
     out->write("<?xml version=\"1.0\" standalone=\"no\"?>\n");
     root->writeOut(out, listener);
 
-    for (BackgroundImage& img: backgroundImages) {
+    for (BackgroundImage const& img: backgroundImages) {
         auto tmpfn = (fs::path(filepath) += ".") += img.getFilepath();
         if (!gdk_pixbuf_save(img.getPixbuf(), tmpfn.u8string().c_str(), "png", nullptr, nullptr)) {
             if (!this->errorMessage.empty()) {

@@ -21,11 +21,8 @@ class XmlPointNode: public XmlAudioNode {
 public:
     XmlPointNode(const char* tag);
 
-    XmlPointNode(const XmlPointNode& node) = delete;
-    void operator=(const XmlPointNode& node) = delete;
-
 public:
-    void addPoint(const Point* point);
+    void addPoint(Point point);
     void writeOut(OutputStream* out) override;
 
 private:

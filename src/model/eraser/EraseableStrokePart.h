@@ -25,6 +25,7 @@ public:
     double getWidth() const;
 
     std::vector<Point>& getPoints();
+    std::vector<Point> const& getPoints() const;
 
     void clearSplitData();
     void splitFor(double halfEraserSize);

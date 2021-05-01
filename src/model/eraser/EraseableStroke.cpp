@@ -32,10 +32,10 @@ void EraseableStroke::draw(cairo_t* cr) {
             cairo_set_line_width(cr, part.getWidth());
         }
 
-        std::vector<Point>& pl = part.getPoints();
+        std::vector<Point> const& pl = part.getPoints();
         cairo_move_to(cr, pl[0].x, pl[0].y);
 
-        for (auto pointIter = pl.begin() + 1; pointIter != pl.end(); pointIter++) {
+        for (auto pointIter = pl.begin() + 1; pointIter != pl.end(); ++pointIter) {
             cairo_line_to(cr, pointIter->x, pointIter->y);
         }
         cairo_stroke(cr);
@@ -58,7 +58,7 @@ auto EraseableStroke::erase(double x, double y, double halfEraserSize, Range* ra
 
     for (auto partIter = tmpCopy.begin(); partIter != tmpCopy.end();) {
         if (!erase(x, y, halfEraserSize, partIter, tmpCopy)) {
-            partIter++;
+            ++partIter;
         }
     }
 
@@ -242,7 +242,7 @@ auto EraseableStroke::erasePart(double x, double y, double halfEraserSize, PartL
             changed = true;
         } else {
             splitPoints.back().push_back(*pointIter);
-            pointIter++;
+            ++pointIter;
         }
     }
     if (splitPoints.back().empty()) {
@@ -260,7 +260,7 @@ auto EraseableStroke::erasePart(double x, double y, double halfEraserSize, PartL
         for (auto& l: splitPoints) {
             PartList::iterator newPart = list.emplace(insertPos, partIter->getWidth());
             newPart->getPoints() = std::move(l);
-            insertPos++;
+            ++insertPos;
         }
     } else {
         // no parts, all deleted
@@ -275,7 +275,7 @@ auto EraseableStroke::getStroke(Stroke* original) -> std::vector<std::unique_ptr
 
     Point lastPoint(NAN, NAN);
     for (EraseableStrokePart& part: parts) {
-        std::vector<Point>& points = part.getPoints();
+        std::vector<Point> const& points = part.getPoints();
         if (points.size() < 2) {
             continue;
         }
@@ -288,7 +288,7 @@ auto EraseableStroke::getStroke(Stroke* original) -> std::vector<std::unique_ptr
             if (!strokeList.empty()) {
                 strokeList.back()->addPoint(lastPoint);
             }
-            auto& newStroke = strokeList.emplace_back(std::move(std::make_unique<Stroke>()));
+            auto& newStroke = strokeList.emplace_back(std::make_unique<Stroke>());
             newStroke->setColor(original->getColor());
             newStroke->setToolType(original->getToolType());
             newStroke->setLineStyle(original->getLineStyle());

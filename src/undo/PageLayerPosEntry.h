@@ -21,7 +21,9 @@ struct PageLayerPosEntry {
     Layer* layer;
     T* element;
     int pos;
-
-    // TODO: replace with <=> operator
-    static int cmp(const PageLayerPosEntry<T>& a, const PageLayerPosEntry<T>& b) { return a.pos - b.pos; }
 };
+
+template <typename T>
+constexpr auto operator<(const PageLayerPosEntry<T>& lhs, const PageLayerPosEntry<T>& rhs) -> bool {
+    return lhs.pos < rhs.pos;
+}
